@@ -24,7 +24,11 @@ class MessageParser:
     """Parser for natural language reminder messages."""
     
     def __init__(self):
-        self.timezone = pytz.timezone(TZ)
+        # Handle invalid timezone in serverless environment
+        try:
+            self.timezone = pytz.timezone(TZ)
+        except:
+            self.timezone = pytz.UTC  # Fallback to UTC
         self.openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
     
     def parse_message(self, message: str) -> ParsedReminder:

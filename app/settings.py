@@ -9,7 +9,7 @@ load_dotenv()
 
 # Application settings
 APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
-TZ = os.getenv("TZ", "Europe/London")
+TZ = os.getenv("TZ", "UTC")
 DAILY_DIGEST_HOUR = int(os.getenv("DAILY_DIGEST_HOUR", "8"))
 
 # Database
