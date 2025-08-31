@@ -25,7 +25,7 @@ router = APIRouter()
 # Initialize Twilio client and validator
 twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 twilio_validator = RequestValidator(TWILIO_AUTH_TOKEN)
-timezone = pytz.timezone(TZ)
+timezone = pytz.UTC  # Force UTC for serverless
 
 
 class MessageHandler:
