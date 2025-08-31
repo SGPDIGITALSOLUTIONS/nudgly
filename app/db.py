@@ -2,12 +2,13 @@
 
 from contextlib import contextmanager
 from sqlalchemy.orm import Session
-from .models import SessionLocal, create_tables, engine
+from .database import SessionLocal, engine, Base, init_db as init_database
+from . import models
 
 
 def init_db():
     """Initialize the database by creating all tables."""
-    create_tables()
+    init_database()
 
 
 @contextmanager
