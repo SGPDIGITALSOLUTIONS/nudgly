@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Nudgly{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="mx-auto h-20 w-20 bg-indigo-600 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-brain text-white text-2xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome to Nudgly</h2>
+            <p class="text-gray-600">Your personal ADHD reminder assistant</p>
+        </div>
+        
+        <form class="mt-8 space-y-6" action="/login" method="post" x-data="{ loading: false }" @submit="loading = true">
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+            </div>
+            {% endif %}
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2"></i>WhatsApp Number
+                    </label>
+                    <input 
+                        id="phone" 
+                        name="phone" 
+                        type="text" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        placeholder="whatsapp:+447123456789"
+                        value="{{ phone or '' }}"
+                    >
+                    <p class="mt-1 text-sm text-gray-500">Enter your WhatsApp number in format: whatsapp:+447123456789</p>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        placeholder="Enter your password"
+                    >
+                </div>
+            </div>
+
+            <button 
+                type="submit" 
+                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all"
+                :disabled="loading"
+            >
+                <span x-show="!loading">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </span>
+                <span x-show="loading" class="flex items-center">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Signing in...
+                </span>
+            </button>
+        </form>
+        
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Need help? Contact your admin to get access.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

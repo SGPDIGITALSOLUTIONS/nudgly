@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Nudgly{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50" x-data="dashboard()">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 bg-indigo-600 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-brain text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Nudgly Dashboard</h1>
+                        <p class="text-sm text-gray-600">{{ user_phone }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>
+                        <span x-text="currentTime"></span>
+                    </span>
+                    <a href="/logout" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 px-4 sm:px-0">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-day text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Today's Tasks</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ today_count }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-2xl text-orange-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Pending</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ pending_count }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Completed Today</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ completed_today_count }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Add Task -->
+        <div class="mb-8 px-4 sm:px-0">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-plus-circle mr-2 text-indigo-600"></i>Quick Add Reminder
+                </h3>
+                <form @submit.prevent="addTask()" class="flex space-x-4">
+                    <input 
+                        type="text" 
+                        x-model="newTask"
+                        placeholder="e.g., Take medication at 9am tomorrow"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                    >
+                    <button 
+                        type="submit"
+                        class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                        :disabled="loading"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Add
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tasks Lists -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 px-4 sm:px-0">
+            <!-- Today's Tasks -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-calendar-day mr-2 text-blue-600"></i>Today's Tasks
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if today_tasks %}
+                        <div class="space-y-4">
+                            {% for task in today_tasks %}
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <button 
+                                        @click="markDone({{ task.id }})"
+                                        class="text-green-600 hover:text-green-700 transition-colors"
+                                        title="Mark as done"
+                                    >
+                                        <i class="fas fa-check-circle text-xl"></i>
+                                    </button>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ task.text }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            {{ task.due_at.strftime('%H:%M') if task.due_at else 'No time set' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button 
+                                    @click="cancelTask({{ task.id }})"
+                                    class="text-red-600 hover:text-red-700 transition-colors"
+                                    title="Cancel task"
+                                >
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-check text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No tasks for today! 🎉</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming Tasks -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>Upcoming Tasks
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if upcoming_tasks %}
+                        <div class="space-y-4">
+                            {% for task in upcoming_tasks %}
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <button 
+                                        @click="markDone({{ task.id }})"
+                                        class="text-green-600 hover:text-green-700 transition-colors"
+                                        title="Mark as done"
+                                    >
+                                        <i class="fas fa-check-circle text-xl"></i>
+                                    </button>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ task.text }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            {{ task.due_at.strftime('%a, %b %d at %H:%M') if task.due_at else 'No date set' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button 
+                                    @click="cancelTask({{ task.id }})"
+                                    class="text-red-600 hover:text-red-700 transition-colors"
+                                    title="Cancel task"
+                                >
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-plus text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No upcoming tasks</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+function dashboard() {
+    return {
+        newTask: '',
+        loading: false,
+        currentTime: '',
+        
+        init() {
+            this.updateTime();
+            setInterval(() => this.updateTime(), 1000);
+        },
+        
+        updateTime() {
+            this.currentTime = new Date().toLocaleTimeString();
+        },
+        
+        async addTask() {
+            if (!this.newTask.trim()) return;
+            
+            this.loading = true;
+            try {
+                const response = await fetch('/api/add-task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: this.newTask })
+                });
+                
+                if (response.ok) {
+                    showToast('Task added successfully!');
+                    this.newTask = '';
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Failed to add task', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async markDone(taskId) {
+            try {
+                const response = await fetch(`/api/task/${taskId}/done`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showToast('Task marked as done!');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Failed to mark task as done', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        },
+        
+        async cancelTask(taskId) {
+            if (!confirm('Are you sure you want to cancel this task?')) return;
+            
+            try {
+                const response = await fetch(`/api/task/${taskId}/cancel`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showToast('Task cancelled');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Failed to cancel task', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+    }
+}
+</script>
+{% endblock %}
