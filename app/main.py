@@ -12,7 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .settings import validate_settings
 from .db import init_db
-from .scheduler import start_scheduler, stop_scheduler
+# Scheduler disabled for serverless deployment
+# from .scheduler import start_scheduler, stop_scheduler
 from .handlers import router as twilio_router
 from .web import router as web_router
 
@@ -39,13 +40,8 @@ async def lifespan(app: FastAPI):
         print(f"❌ Database initialization failed: {e}")
         raise
     
-    # Start scheduler
-    try:
-        start_scheduler()
-        print("✅ Scheduler started")
-    except Exception as e:
-        print(f"❌ Scheduler startup failed: {e}")
-        raise
+    # Scheduler disabled for serverless deployment
+    print("⚠️ Scheduler disabled (serverless mode)")
     
     print("🎉 Nudgly is ready!")
     
@@ -53,11 +49,7 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     print("🛑 Shutting down Nudgly...")
-    try:
-        stop_scheduler()
-        print("✅ Scheduler stopped")
-    except Exception as e:
-        print(f"⚠️ Error stopping scheduler: {e}")
+    print("✅ Serverless shutdown complete")
 
 
 # Create FastAPI application
